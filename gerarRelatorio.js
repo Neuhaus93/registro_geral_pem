@@ -1,24 +1,29 @@
+var lin1 = 13;
+var lin2 = 18;
+var lin3 = 23;
+
+
 function gerarRelatorio() {
   var ss = SpreadsheetApp.getActive();
   
   cloneTemplate();
   
-  ss.getSheetByName("Loading").showSheet().activate();
+  ss.getSheetByName("Processando").showSheet().activate();
   
   var reportSheet = ss.getSheetByName('Relatório');
   var tasksSheet = ss.getSheetByName('Tarefas');
   
   reportSheet.hideSheet();  
   
-  // tasksSheet.activate();
   var dataRange = tasksSheet.getDataRange();
   var rangeValues = dataRange.getValues();
   var numberOfRows = dataRange.getLastRow();
   
   for(i = 2; i < numberOfRows; i++){
     
-    var progression = (i - 2) / (numberOfRows - 2);
-    ss.getSheetByName("Loading").getRange('B1').setValue(progression);
+    var progression = (i - 2) / (numberOfRows - 2) * 100;
+    progression = progression.toFixed(1);
+    ss.getSheetByName("Processando").getRange('B1').setValue("Progresso: " + progression + "%");
     
     var situacao = rangeValues[i][3];
     
@@ -37,11 +42,9 @@ function gerarRelatorio() {
 
   }
   
-  reportSheet.deleteColumn(4);
-  
   reportSheet.showSheet();
   SpreadsheetApp.getActive().setActiveSheet(reportSheet);
-  SpreadsheetApp.getActive().getSheetByName("Loading").hideSheet();
+  SpreadsheetApp.getActive().getSheetByName("Processando").hideSheet();
   
 }
 
@@ -49,23 +52,36 @@ function copyPasteTasks(rowIndex, taskCondition){
   var ss = SpreadsheetApp.getActive();
   var reportSheet = ss.getSheetByName('Relatório');
   
+  var aux = reportSheet.getRange('A1');
+  var lastRow = 1;
   
-  var aux = reportSheet.getRange('D1');
-  
-  for (j = 0; j < taskCondition; j++){
-    aux = aux.getNextDataCell(SpreadsheetApp.Direction.DOWN);
+  switch(taskCondition){
+    case 1:
+      reportSheet.insertRowAfter(lin1);
+      lin1++; lin2++; lin3++;
+      lastRow = lin1;
+      aux = reportSheet.getRange('A'+lin1);
+      break;
+      
+    case 2:
+      reportSheet.insertRowAfter(lin2);
+      lin2++, lin3++;
+      lastRow = lin2;
+      aux = reportSheet.getRange('A'+lin2);
+      break;
+      
+    case 3:
+      reportSheet.insertRowAfter(lin3);
+      lin3++;
+      lastRow = lin3;
+      aux = reportSheet.getRange('A'+lin3);
   }
   
-  reportSheet.insertRowAfter(aux.getLastRow());
-  aux = aux.offset(1,0);
-  var lastRow = aux.getLastRow();
-  
-  aux.offset(-1, 0).moveTo(aux);
-  aux = aux.getNextDataCell(SpreadsheetApp.Direction.PREVIOUS);
   ss.getRange('Tarefas!A' + rowIndex + ':C' + rowIndex).copyTo(aux, SpreadsheetApp.CopyPasteType.PASTE_VALUES, false);
   
   reportSheet.setRowHeight(lastRow, 80);
   var taskRow = reportSheet.getRange('A' + lastRow + ':C' + lastRow);
+  Logger.log(taskRow.getA1Notation());
   taskRow.setVerticalAlignment('middle')
   .setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
   
@@ -78,11 +94,10 @@ function cloneTemplate(){
   var ss = SpreadsheetApp.getActive();
   var sheet = ss.getSheetByName("Template").copyTo(ss);
   
-  /* Before cloning the sheet, delete any previous copy */
   var old = ss.getSheetByName(name);
-  if (old) ss.deleteSheet(old); // or old.setName(new Name);
+  if (old) ss.deleteSheet(old);
   
-  SpreadsheetApp.flush(); // Utilities.sleep(2000);
+  SpreadsheetApp.flush(); 
   sheet.setName(name);
   
 }
