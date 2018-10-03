@@ -1,7 +1,8 @@
-var LIN1 = 13;
+var START_LINE = 13; // Linha a partir da qual será inserido às tarefas (após esta linha)
+var OFFSET = 5;      // Quantidae de colunas em branco + Títulos entre o fim de uma classe de tarefas e o início de outra
 
 
-function gerarRelatorioTeste() {
+function gerarRelatorio() {
   var ss = SpreadsheetApp.getActive();
   
   cloneTemplate();
@@ -41,18 +42,26 @@ function gerarRelatorioTeste() {
     }
     
   }  
+
+  // Colando os falore e formatando as células para cada situação de tarefa
+  var totalOffset = START_LINE;
   
   if (arrayA.length != 0) {
-      copyPasteTasksTeste(LIN1, arrayA.length, arrayA);
+      copyPasteTasks(totalOffset, arrayA.length, arrayA);
   }
+  
+  totalOffset += arrayA.length + OFFSET;
   
   if (arrayB.length != 0) {
-      copyPasteTasksTeste(LIN1+arrayA.length+5, arrayB.length, arrayB);
+      copyPasteTasks(totalOffset, arrayB.length, arrayB);
   }
   
+  totalOffset += arrayB.length + OFFSET;
+  
   if (arrayC.length != 0) {
-      copyPasteTasksTeste(LIN1+arrayA.length+arrayB.length+10, arrayC.length, arrayC);
+      copyPasteTasks(totalOffset, arrayC.length, arrayC);
   }
+  
   
   reportSheet.showSheet();
   SpreadsheetApp.getActive().setActiveSheet(reportSheet);
@@ -61,7 +70,7 @@ function gerarRelatorioTeste() {
 }
 
 
-function copyPasteTasksTeste(afterPosition, howMany, values){
+function copyPasteTasks(afterPosition, howMany, values){
   var ss = SpreadsheetApp.getActive();
   var reportSheet = ss.getSheetByName('Relatório');
  
@@ -78,11 +87,12 @@ function copyPasteTasksTeste(afterPosition, howMany, values){
 }
 
 
-function cloneTemplateTeste(){
+function cloneTemplate(){
   var name = "Relatório";
   var ss = SpreadsheetApp.getActive();
   var sheet = ss.getSheetByName("Template").copyTo(ss);
   
+  // Caso exista uma planilha de relatório antiga, será apagada
   var old = ss.getSheetByName(name);
   if (old) ss.deleteSheet(old);
   
