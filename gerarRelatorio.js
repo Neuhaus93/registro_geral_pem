@@ -1,9 +1,7 @@
-var lin1 = 13;
-var lin2 = 18;
-var lin3 = 23;
+var LIN1 = 13;
 
 
-function gerarRelatorio() {
+function gerarRelatorioTeste() {
   var ss = SpreadsheetApp.getActive();
   
   cloneTemplate();
@@ -19,27 +17,41 @@ function gerarRelatorio() {
   var rangeValues = dataRange.getValues();
   var numberOfRows = dataRange.getLastRow();
   
+  var arrayA = new Array();
+  var arrayB = new Array();
+  var arrayC = new Array();
+
   for(i = 2; i < numberOfRows; i++){
     
-    var progression = (i - 2) / (numberOfRows - 2) * 100;
-    progression = progression.toFixed(1);
-    ss.getSheetByName("Processando").getRange('B1').setValue("Progresso: " + progression + "%");
-    
+    var temp = tasksSheet.getRange('A' + (i+1) + ':C' + (i+1)).getValues();
+
     var situacao = rangeValues[i][3];
     
     switch(situacao){
       case "Metas":
-        copyPasteTasks(i+1, 1);
+        arrayA = arrayA.concat(temp);
         break;
         
       case "Concluídas":
-        copyPasteTasks(i+1, 2);
+        arrayB = arrayB.concat(temp);
         break;
         
       case "À espera de execução":
-        copyPasteTasks(i+1, 3);
+        arrayC = arrayC.concat(temp);
     }
-
+    
+  }  
+  
+  if (arrayA.length != 0) {
+      copyPasteTasksTeste(LIN1, arrayA.length, arrayA);
+  }
+  
+  if (arrayB.length != 0) {
+      copyPasteTasksTeste(LIN1+arrayA.length+5, arrayB.length, arrayB);
+  }
+  
+  if (arrayC.length != 0) {
+      copyPasteTasksTeste(LIN1+arrayA.length+arrayB.length+10, arrayC.length, arrayC);
   }
   
   reportSheet.showSheet();
@@ -48,48 +60,25 @@ function gerarRelatorio() {
   
 }
 
-function copyPasteTasks(rowIndex, taskCondition){
+
+function copyPasteTasksTeste(afterPosition, howMany, values){
   var ss = SpreadsheetApp.getActive();
   var reportSheet = ss.getSheetByName('Relatório');
+ 
+  reportSheet.insertRowsAfter(afterPosition, howMany);
   
-  var aux = reportSheet.getRange('A1');
-  var lastRow = 1;
-  
-  switch(taskCondition){
-    case 1:
-      reportSheet.insertRowAfter(lin1);
-      lin1++; lin2++; lin3++;
-      lastRow = lin1;
-      aux = reportSheet.getRange('A'+lin1);
-      break;
-      
-    case 2:
-      reportSheet.insertRowAfter(lin2);
-      lin2++, lin3++;
-      lastRow = lin2;
-      aux = reportSheet.getRange('A'+lin2);
-      break;
-      
-    case 3:
-      reportSheet.insertRowAfter(lin3);
-      lin3++;
-      lastRow = lin3;
-      aux = reportSheet.getRange('A'+lin3);
-  }
-  
-  ss.getRange('Tarefas!A' + rowIndex + ':C' + rowIndex).copyTo(aux, SpreadsheetApp.CopyPasteType.PASTE_VALUES, false);
-  
-  reportSheet.setRowHeight(lastRow, 80);
-  var taskRow = reportSheet.getRange('A' + lastRow + ':C' + lastRow);
-  Logger.log(taskRow.getA1Notation());
-  taskRow.setVerticalAlignment('middle')
+  reportSheet.getRange(afterPosition+1, 1, howMany, 3)
+  .setValues(values)
+  .setVerticalAlignment('middle')
   .setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
+  reportSheet.setRowHeights(afterPosition+1, howMany, 80);
   
   SpreadsheetApp.flush();
   
 }
 
-function cloneTemplate(){
+
+function cloneTemplateTeste(){
   var name = "Relatório";
   var ss = SpreadsheetApp.getActive();
   var sheet = ss.getSheetByName("Template").copyTo(ss);
@@ -101,12 +90,3 @@ function cloneTemplate(){
   sheet.setName(name);
   
 }
-
-
-
-
-
-
-
-
-
