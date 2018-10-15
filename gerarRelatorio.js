@@ -5,11 +5,11 @@ var OFFSET = 5;      // Quantidae de colunas em branco + Títulos entre o fim de
 function gerarRelatorio() {
   var ss = SpreadsheetApp.getActive();
   
-  cloneTemplate();
-  
   ss.getSheetByName("Processando").showSheet().activate();
   
-  var reportSheet = ss.getSheetByName('Relatório');
+  cloneTemplate();
+  
+  var reportSheet = ss.getSheetByName('Relatório - Tarefas');
   var tasksSheet = ss.getSheetByName('Tarefas');
   
   reportSheet.hideSheet();  
@@ -72,7 +72,7 @@ function gerarRelatorio() {
 
 function copyPasteTasks(afterPosition, howMany, values){
   var ss = SpreadsheetApp.getActive();
-  var reportSheet = ss.getSheetByName('Relatório');
+  var reportSheet = ss.getSheetByName('Relatório - Tarefas');
  
   reportSheet.insertRowsAfter(afterPosition, howMany);
   
@@ -80,7 +80,7 @@ function copyPasteTasks(afterPosition, howMany, values){
   .setValues(values)
   .setVerticalAlignment('middle')
   .setWrapStrategy(SpreadsheetApp.WrapStrategy.WRAP);
-  reportSheet.setRowHeights(afterPosition+1, howMany, 80);
+  reportSheet.setRowHeights(afterPosition+1, howMany, 70);
   
   SpreadsheetApp.flush();
   
@@ -88,9 +88,9 @@ function copyPasteTasks(afterPosition, howMany, values){
 
 
 function cloneTemplate(){
-  var name = "Relatório";
+  var name = "Relatório - Tarefas";
   var ss = SpreadsheetApp.getActive();
-  var sheet = ss.getSheetByName("Template").copyTo(ss);
+  var sheet = ss.getSheetByName("Tarefas - Template").copyTo(ss);
   
   // Caso exista uma planilha de relatório antiga, será apagada
   var old = ss.getSheetByName(name);
@@ -100,3 +100,4 @@ function cloneTemplate(){
   sheet.setName(name);
   
 }
+
